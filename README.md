@@ -7,7 +7,8 @@ It scans common locations like:
 - AppData  
 - Documents  
 - My Games  
-- Saved Games  
+- Saved Games
+- Steam userdata (Steam Cloud)
 
 and shows all possible save folders for a game, then lets you open them in File Explorer.
 
