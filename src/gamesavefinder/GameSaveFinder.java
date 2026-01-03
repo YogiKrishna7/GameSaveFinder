@@ -13,7 +13,7 @@ public class GameSaveFinder{
 
     static List<Path> foundSaves = new ArrayList<>();
 
-    static void scanFolder(Path folder, String gameName) {
+    static void scanFolder(Path folder, String gameName, boolean insideGame) {
 
         if (!Files.exists(folder) || !Files.isDirectory(folder)) {
             return;
@@ -31,7 +31,9 @@ public class GameSaveFinder{
 
                 String folderName = p.getFileName().toString().toLowerCase();
 
-                if (folderName.contains(gameName)) {
+                boolean nowInsideGame = insideGame || folderName.contains(gameName);
+
+                if (nowInsideGame) {
 
                     try (Stream<Path> inside = Files.list(p)) {
 
@@ -41,10 +43,15 @@ public class GameSaveFinder{
 
                             String name = f.getFileName().toString().toLowerCase();
 
-                            if (name.equals("saves") || name.equals("save") || name.equals("savegame")
-                                    || name.equals("profiles") || name.equals("players") || name.equals("userdata")) {
 
-                                foundSaves.add(f);
+
+                            if (name.equals("saves") || name.equals("save") || name.equals("savegame")
+                                    || name.equals("profiles") || name.equals("players") || name.equals("userdata") || name.equals("savedata") || name.equals("dbe_production")) {
+
+                            	if (!foundSaves.contains(f)) {
+                            	    foundSaves.add(f);
+                            	}
+
                             }
 
                             if (Files.isRegularFile(f)) {
@@ -52,7 +59,10 @@ public class GameSaveFinder{
                                 if (name.endsWith(".json") || name.endsWith(".dat") || name.endsWith(".bin")
                                         || name.endsWith(".db") || name.endsWith(".cfg")) {
 
-                                    foundSaves.add(p);
+                                	if (!foundSaves.contains(p)) {
+                                	    foundSaves.add(p);
+                                	}
+
                                 }
                             }
                         }
@@ -61,7 +71,7 @@ public class GameSaveFinder{
                     }
                 }
 
-                scanFolder(p, gameName);
+                scanFolder(p, gameName, nowInsideGame);
             }
 
         } catch (Exception e) {
@@ -86,7 +96,6 @@ public class GameSaveFinder{
 
                 Path root = Paths.get(System.getProperty("user.home"));
 
-                Path desktop = root.resolve("Desktop");
                 Path documents = root.resolve("Documents");
                 Path myGames = root.resolve("Documents").resolve("My Games");
                 Path savedGames = root.resolve("Saved Games");
@@ -96,10 +105,10 @@ public class GameSaveFinder{
                 Path steam = Paths.get("C:\\Program Files (x86)\\Steam\\userdata");
 
 
-                List<Path> searchRoots = List.of(desktop, documents, myGames, savedGames, roaming, local, localLow, steam);
+                List<Path> searchRoots = List.of(documents, myGames, savedGames, roaming, local, localLow, steam);
 
                 for (Path rootFolder : searchRoots) {
-                    scanFolder(rootFolder, gameName);
+                    scanFolder(rootFolder, gameName, false);
                 }
 
                 if (foundSaves.isEmpty()) {
