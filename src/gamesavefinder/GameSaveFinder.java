@@ -11,7 +11,27 @@ import java.util.stream.Stream;
 
 public class GameSaveFinder{
 
+	static List<String> saveExtensions = List.of(
+		    ".sav", ".sav1", ".sav2",
+		    ".dat", ".bin", ".db", ".json",
+		    ".ess", ".fos", ".age", ".b",
+		    ".srm", ".state",
+		    ".profile", ".player",
+		    ".autosave", ".quick"
+		);
+	
+	static List<String> saveFolderNames = List.of(
+		    "saves", "save", "savegame",
+		    "profiles", "players", "userdata",
+		    "savedata", "dbe_production",
+		    "user files"
+		);
+
     static List<Path> foundSaves = new ArrayList<>();
+    
+    static String normalize(String s) {
+        return s.toLowerCase().replaceAll("[^a-z0-9]", "");
+    }
 
     static void scanFolder(Path folder, String gameName, boolean insideGame) {
 
@@ -29,9 +49,11 @@ public class GameSaveFinder{
                     continue;
                 }
 
-                String folderName = p.getFileName().toString().toLowerCase();
+                String folderName = normalize(p.getFileName().toString());
+                String normalizedGame = normalize(gameName);
 
-                boolean nowInsideGame = insideGame || folderName.contains(gameName);
+                boolean nowInsideGame = insideGame || folderName.contains(normalizedGame);
+
 
                 if (nowInsideGame) {
 
@@ -43,26 +65,21 @@ public class GameSaveFinder{
 
                             String name = f.getFileName().toString().toLowerCase();
 
-
-
-                            if (name.equals("saves") || name.equals("save") || name.equals("savegame")
-                                    || name.equals("profiles") || name.equals("players") || name.equals("userdata") || name.equals("savedata") || name.equals("dbe_production")) {
-
-                            	if (!foundSaves.contains(f)) {
-                            	    foundSaves.add(f);
-                            	}
-
+                            for (String fName : saveFolderNames) {
+                                if (name.equals(fName)) {
+                                    if (!foundSaves.contains(f)) {
+                                        foundSaves.add(f);
+                                    }
+                                }
                             }
 
                             if (Files.isRegularFile(f)) {
-
-                                if (name.endsWith(".json") || name.endsWith(".dat") || name.endsWith(".bin")
-                                        || name.endsWith(".db") || name.endsWith(".cfg")) {
-
-                                	if (!foundSaves.contains(p)) {
-                                	    foundSaves.add(p);
-                                	}
-
+                                for (String ext : saveExtensions) {
+                                    if (name.endsWith(ext)) {
+                                        if (!foundSaves.contains(p)) {
+                                            foundSaves.add(p);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -97,6 +114,17 @@ public class GameSaveFinder{
                 Path root = Paths.get(System.getProperty("user.home"));
 
                 Path documents = root.resolve("Documents");
+                List<Path> documentsSubFolders = new ArrayList<>();
+
+                try (Stream<Path> docs = Files.list(documents)) {
+                    for (Path p : docs.toList()) {
+                        if (Files.isDirectory(p)) {
+                            documentsSubFolders.add(p);
+                        }
+                    }
+                } catch (Exception e) {
+                }
+
                 Path myGames = root.resolve("Documents").resolve("My Games");
                 Path savedGames = root.resolve("Saved Games");
                 Path roaming = root.resolve("AppData").resolve("Roaming");
@@ -105,7 +133,16 @@ public class GameSaveFinder{
                 Path steam = Paths.get("C:\\Program Files (x86)\\Steam\\userdata");
 
 
-                List<Path> searchRoots = List.of(documents, myGames, savedGames, roaming, local, localLow, steam);
+                List<Path> searchRoots = new ArrayList<>();
+
+                searchRoots.add(documents);
+                searchRoots.addAll(documentsSubFolders);
+                searchRoots.add(myGames);
+                searchRoots.add(savedGames);
+                searchRoots.add(roaming);
+                searchRoots.add(local);
+                searchRoots.add(localLow);
+                searchRoots.add(steam);
 
                 for (Path rootFolder : searchRoots) {
                     scanFolder(rootFolder, gameName, false);
