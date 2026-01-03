@@ -93,8 +93,10 @@ public class GameSaveFinder{
                 Path roaming = root.resolve("AppData").resolve("Roaming");
                 Path local = root.resolve("AppData").resolve("Local");
                 Path localLow = root.resolve("AppData").resolve("LocalLow");
+                Path steam = Paths.get("C:\\Program Files (x86)\\Steam\\userdata");
 
-                List<Path> searchRoots = List.of(desktop, documents, myGames, savedGames, roaming, local, localLow);
+
+                List<Path> searchRoots = List.of(desktop, documents, myGames, savedGames, roaming, local, localLow, steam);
 
                 for (Path rootFolder : searchRoots) {
                     scanFolder(rootFolder, gameName);
