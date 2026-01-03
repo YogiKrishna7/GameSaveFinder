@@ -1,4 +1,4 @@
-# GameSaveFinder
+# GameSaveFinder (GSF)
 
 GameSaveFinder is a small Java tool that finds where PC games store their save files on Windows.
 
