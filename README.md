@@ -18,7 +18,7 @@ I made this because I kept getting confused about where games save their files, 
 ## How to use
 
 1. Run the program  
-2. Enter the game name (example: `schedule`)  
+2. Enter the game name (example: `mafia`)  
 3. Choose the save folder number  
 4. The folder opens in File Explorer  
 
@@ -26,7 +26,8 @@ I made this because I kept getting confused about where games save their files, 
 
 ## Works with
 
-- Steam games  
+- Steam games
+- Steam cloud saves  
 - Non-Steam games  
 - Unity games  
 - Unreal games  
@@ -36,7 +37,6 @@ I made this because I kept getting confused about where games save their files, 
 
 ## Notes
 
-This is a beginner project.  
-It may not find every game, but it works for most.
+This is a beginner project so it may not work for every game.
 
 Thank you 🙂
